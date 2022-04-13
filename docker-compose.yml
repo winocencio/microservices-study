@@ -1,0 +1,40 @@
+version: "3"
+services:
+  auth-db:
+    image: mysql:8
+    container_name: auth-db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=auth-db
+    ports: 
+      - 5234:3306
+
+  product-db:
+    image: mysql:8
+    container_name: product-db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=product-db
+    ports: 
+      - 5235:3306
+
+  sales-db:
+    image: tutum/mongodb
+    container_name: sales-db
+    restart: always
+    environment:
+      - MONGODB_DATABASE=sales
+      - MONGODB_USER=admin
+      - MONGODB_PASS=admin
+    ports: 
+      - 27017:27017
+
+  sales_rabbit:
+    image: rabbitmq:3-management
+    container_name: sales_rabbit
+    ports: 
+      - 5672:5672
+      - 25676:25676
+      - 15672:15672
