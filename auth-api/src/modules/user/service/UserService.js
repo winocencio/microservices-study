@@ -11,11 +11,12 @@ class UserService {
     async findByEmail(req){
         try{
             const { email } = req.params;
+            const { authUser } = req;
             this.validateRequestData(email);
             let user = await UserRepository.findByEmail(email);
 
             this.validateUserNotFound(user);
-
+            this.validateAuthenticatedUser(user,authUser)
             return {
                 status: httpStatus.SUCCESS,
                 user: {
@@ -65,7 +66,7 @@ class UserService {
             this.validateUserNotFoundWithoutAccess(user);
             await this.validatePassword(password,user.password);
 
-            const authUser = { is: user.id,name: user.name , email: user.email};
+            const authUser = { id: user.id,name: user.name , email: user.email};
             const accesToken = jwt.sign({authUser}, secrets.API_SECRET,{expiresIn: "1d"});
 
             return {
@@ -90,6 +91,12 @@ class UserService {
     async validatePassword(password,hashPassword){
         if(!await bcrypt.compare(password,hashPassword)){
             throw new UserException(httpStatus.UNAUTHORIZED,"Email and password doesn't match.");
+        }
+    }
+
+    validateAuthenticatedUser(user,authUser){
+        if(!authUser || user.id !== authUser.id){
+            throw new UserException(httpStatus.UNAUTHORIZED,"You can't see this user data.");
         }
     }
 
